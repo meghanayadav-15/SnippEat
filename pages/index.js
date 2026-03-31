@@ -1,10 +1,3 @@
-Perfect, clean structure! ✅
-Now the last and biggest file — this is the actual SnippEat app with all the UI.
-	1.	Click on pages/index.js
-	2.	Click the pencil icon ✏️ to edit
-	3.	Select all and delete what’s in there
-	4.	Paste this:
-
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -50,7 +43,7 @@ export default function Home() {
       ? await supabase.auth.signUp({ email, password })
       : await supabase.auth.signInWithPassword({ email, password });
     if (error) setAuthError(error.message);
-    else if (isSignUp) setAuthError('✅ Check your email to confirm!');
+    else if (isSignUp) setAuthError('Check your email to confirm!');
   }
 
   async function signOut() {
@@ -302,6 +295,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-
