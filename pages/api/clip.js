@@ -10,27 +10,16 @@ export default async function handler(req, res) {
   if (ytMatch) {
     const videoId = ytMatch[1];
     try {
-      const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept-Language': 'en-US,en;q=0.9',
-        },
-      });
-      const html = await pageRes.text();
+      const apiRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`
+      );
+      const apiData = await apiRes.json();
+      const snippet = apiData.items?.[0]?.snippet;
 
-      // Try to extract description
-      const descMatch = html.match(/"attributedDescriptionBodyText":\{"content":"([\s\S]*?)","commandRuns/);
-      const desc = descMatch
-        ? descMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
-        : null;
-
-      if (desc && desc.length > 100) {
-        contentToSend = `YouTube recipe video description. Extract the recipe:\n\n${desc}`;
-      } else {
-        // Fall back to video title only
-        const titleMatch = html.match(/"title":"(.*?)","lengthSeconds"/);
-        const title = titleMatch ? titleMatch[1] : 'YouTube recipe';
-        contentToSend = `Extract a recipe for: ${title}`;
+      if (snippet) {
+        const title = snippet.title || '';
+        const description = snippet.description || '';
+        contentToSend = `YouTube recipe video titled "${title}". Extract the recipe from this description:\n\n${description}`;
       }
     } catch (e) {
       // Silent fail — Groq will handle the raw URL
