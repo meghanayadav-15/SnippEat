@@ -1,5 +1,3 @@
-import { YoutubeTranscript } from 'youtube-transcript';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -11,36 +9,31 @@ export default async function handler(req, res) {
 
   if (ytMatch) {
     const videoId = ytMatch[1];
-
-    // 1. Try transcript first
     try {
-      const transcript = await YoutubeTranscript.fetchTranscript(videoId);
-      const transcriptText = transcript.map(t => t.text).join(' ');
-      if (transcriptText.length > 100) {
-        contentToSend = `Transcript from a YouTube recipe video. Extract the recipe:\n\n${transcriptText}`;
-      }
-    } catch (_) {
-      // Transcript failed, try description next
-      try {
-        const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-        });
-        const html = await pageRes.text();
-        const match = html.match(/"description":{"runs":\[.*?"text":"([\s\S]*?)"\}\]}/);
-        const description = match
-          ? match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
-          : null;
+      const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      });
+      const html = await pageRes.text();
 
-        if (description && description.length > 100) {
-          contentToSend = `Description from a YouTube recipe video. Extract the recipe:\n\n${description}`;
-        }
-        // If description also fails, contentToSend stays as the raw URL
-        // Groq will still try its best
-      } catch (_) {
-        // Silent fail — Groq will handle the raw URL
+      // Try to extract description
+      const descMatch = html.match(/"attributedDescriptionBodyText":\{"content":"([\s\S]*?)","commandRuns/);
+      const desc = descMatch
+        ? descMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"')
+        : null;
+
+      if (desc && desc.length > 100) {
+        contentToSend = `YouTube recipe video description. Extract the recipe:\n\n${desc}`;
+      } else {
+        // Fall back to video title only
+        const titleMatch = html.match(/"title":"(.*?)","lengthSeconds"/);
+        const title = titleMatch ? titleMatch[1] : 'YouTube recipe';
+        contentToSend = `Extract a recipe for: ${title}`;
       }
+    } catch (e) {
+      // Silent fail — Groq will handle the raw URL
     }
   }
 
