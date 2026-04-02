@@ -268,7 +268,7 @@ export default function Home() {
                   </div>
                   <div style={{ padding:'12px 14px' }}>
                     <h3 style={{ fontSize:14, fontWeight:800, margin:'0 0 7px', lineHeight:1.3 }}>{nr.title}</h3>
-                    <span style={{ padding:'2px 9px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{nr.cuisine}</span>
+
                   </div>
                 </div>
               );
