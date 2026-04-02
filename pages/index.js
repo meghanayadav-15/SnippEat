@@ -109,11 +109,6 @@ export default function Home() {
       sourceType: r.source_type, clippedAt: r.clipped_at };
   }
 
-  function fmt(m) {
-    if (!m) return '—';
-    return m >= 60 ? `${Math.floor(m/60)}h${m%60>0?' '+m%60+'m':''}` : `${m}m`;
-  }
-
   const COLORS = { Italian:'#e8401c', Japanese:'#2563eb', Indian:'#f5a800', Thai:'#2d7a4f', Chinese:'#e8401c', French:'#7c3aed', Default:'#6b4f2a' };
   const cc = (c) => COLORS[c] || COLORS.Default;
 
@@ -156,7 +151,12 @@ export default function Home() {
       <div style={{ fontFamily:'sans-serif', maxWidth:660, margin:'0 auto', padding:'20px 20px 60px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
           <button onClick={()=>{setSelected(null);setChecks({});setTab('ingredients');}} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>← Library</button>
-          {r.sourceUrl && <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ padding:'8px 14px', borderRadius:10, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', textDecoration:'none', fontWeight:800, fontSize:13 }}>🔗 Original</a>}
+          {r.sourceUrl && (
+            <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer"
+              style={{ padding:'8px 14px', borderRadius:10, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', textDecoration:'none', fontWeight:800, fontSize:13 }}>
+              🔗 View Original
+            </a>
+          )}
         </div>
         <div style={{ background:color+'15', borderRadius:24, padding:'28px 24px', textAlign:'center', marginBottom:16, border:`2px solid ${color}25`, position:'relative' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:5, background:color, borderRadius:'24px 24px 0 0' }}/>
@@ -168,14 +168,6 @@ export default function Home() {
             ))}
           </div>
           {r.editorNote && <div style={{ background:'#fff', borderRadius:12, padding:'10px 14px', fontSize:13, color:'#6b4f2a', fontStyle:'italic', marginTop:10, border:'1.5px solid #ede4d4' }}>💡 {r.editorNote}</div>}
-        </div>
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:16 }}>
-          {[['⏱ Prep',fmt(r.prepTime)],['🍳 Cook',fmt(r.cookTime)],['👤 Serves',r.servings],['🔥 Cals',r.calories]].map(([l,v])=>(
-            <div key={l} style={{ background:'#fff', borderRadius:14, padding:'12px 6px', textAlign:'center', border:'2px solid #ede4d4' }}>
-              <div style={{ fontSize:16, fontWeight:900 }}>{v}</div>
-              <div style={{ fontSize:10, color:'#a0896a', marginTop:2 }}>{l}</div>
-            </div>
-          ))}
         </div>
         <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', overflow:'hidden' }}>
           <div style={{ display:'flex', background:'#fff8ee', borderBottom:'2px solid #ede4d4', padding:'6px 6px 0' }}>
@@ -277,14 +269,6 @@ export default function Home() {
                   <div style={{ padding:'12px 14px' }}>
                     <h3 style={{ fontSize:14, fontWeight:800, margin:'0 0 7px', lineHeight:1.3 }}>{nr.title}</h3>
                     <span style={{ padding:'2px 9px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{nr.cuisine}</span>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:5, marginTop:9 }}>
-                      {[['⏱',fmt(nr.totalTime)],['🔥',`${nr.calories}cal`],['👤',`${nr.servings}`]].map(([icon,val])=>(
-                        <div key={icon} style={{ background:'#fff8ee', borderRadius:8, padding:'5px 3px', textAlign:'center' }}>
-                          <div style={{ fontSize:10 }}>{icon}</div>
-                          <div style={{ fontSize:10, fontWeight:800, color:'#6b4f2a' }}>{val}</div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               );
@@ -295,3 +279,4 @@ export default function Home() {
     </div>
   );
 }
+
