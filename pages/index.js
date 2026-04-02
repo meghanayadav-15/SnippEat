@@ -247,7 +247,7 @@ export default function Home() {
           <div style={{ fontSize:72, marginBottom:12 }}>{r.image||'🍽️'}</div>
           <h1 style={{ fontSize:24, fontWeight:900, marginBottom:12 }}>{r.title}</h1>
           <div style={{ display:'flex', gap:6, justifyContent:'center', flexWrap:'wrap', marginBottom:10 }}>
-            {[r.cuisine, r.mealType, r.diet!=='None'&&r.diet, r.difficulty].filter(t=>t && t!=='Unknown' && t!=='None').map(t=>(
+            {(r.tags||[]).filter(t=>t && t!=='Unknown' && t!=='None').map(t=>(
               <span key={t} style={{ padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{t}</span>
             ))}
           </div>
@@ -255,7 +255,7 @@ export default function Home() {
         </div>
         <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', overflow:'hidden' }}>
           <div style={{ display:'flex', background:'#fff8ee', borderBottom:'2px solid #ede4d4', padding:'6px 6px 0' }}>
-            {['ingredients','steps','nutrition'].map(t=>(
+            {['ingredients','steps'].map(t=>(
               <button key={t} onClick={()=>setTab(t)} style={{ flex:1, padding:'10px 0', background:tab===t?'#fff':'transparent', border:'none', cursor:'pointer', fontSize:13, fontWeight:900, color:tab===t?'#e8401c':'#a0896a', borderRadius:'10px 10px 0 0', textTransform:'capitalize' }}>{t}</button>
             ))}
           </div>
@@ -274,17 +274,6 @@ export default function Home() {
                 <p style={{ margin:0, fontSize:14, color:'#6b4f2a', lineHeight:1.8 }}>{s}</p>
               </div>
             ))}
-            {tab==='nutrition' && (
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:9 }}>
-                {Object.entries(r.nutrition||{}).map(([k,v],i)=>{
-                  const cols=['#e8401c','#2d7a4f','#f5a800','#2563eb'];
-                  return <div key={k} style={{ background:cols[i%4]+'12', borderRadius:14, padding:'14px 16px' }}>
-                    <div style={{ fontSize:20, fontWeight:900 }}>{v}</div>
-                    <div style={{ fontSize:11, color:'#a0896a', textTransform:'capitalize', marginTop:2 }}>{k}</div>
-                  </div>;
-                })}
-              </div>
-            )}
           </div>
         </div>
         <div style={{ marginTop:16, padding:'12px 16px', borderRadius:14, background:'#fff8ee', border:'2px solid #ede4d4', display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:13, color:'#a0896a', fontWeight:700 }}>
