@@ -164,8 +164,8 @@ export default function Home() {
           <div style={{ fontSize:72, marginBottom:12 }}>{r.image||'🍽️'}</div>
           <h1 style={{ fontSize:24, fontWeight:900, marginBottom:12 }}>{r.title}</h1>
           <div style={{ display:'flex', gap:6, justifyContent:'center', flexWrap:'wrap', marginBottom:10 }}>
-            {[r.cuisine, r.mealType, r.diet!=='None'&&r.diet, r.difficulty].filter(Boolean).map(t=>(
-              <span key={t} style={{ padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{t}</span>
+            {[r.cuisine, r.mealType, r.diet!=='None'&&r.diet, r.difficulty].filter(t=>t && t!=='Unknown' && t!=='None').map(t=>(
+    <span key={t} style={{ padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{t}</span>
             ))}
           </div>
           {r.editorNote && <div style={{ background:'#fff', borderRadius:12, padding:'10px 14px', fontSize:13, color:'#6b4f2a', fontStyle:'italic', marginTop:10, border:'1.5px solid #ede4d4' }}>💡 {r.editorNote}</div>}
