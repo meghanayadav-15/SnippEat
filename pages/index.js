@@ -21,6 +21,9 @@ export default function Home() {
   const [checks, setChecks] = useState({});
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -84,7 +87,6 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userContent, originalUrl: input.trim() }),
-
       });
       const recipe = await res.json();
       if (recipe.error) throw new Error(recipe.error);
@@ -108,6 +110,38 @@ export default function Home() {
     return { ...r, mealType: r.meal_type, prepTime: r.prep_time, cookTime: r.cook_time,
       totalTime: r.total_time, editorNote: r.editor_note, sourceUrl: r.source_url,
       sourceType: r.source_type, clippedAt: r.clipped_at };
+  }
+
+  function startEdit(r) {
+    setEditForm({
+      title: r.title || '',
+      image: r.image || '🍽️',
+      editorNote: r.editorNote || '',
+      ingredients: (r.ingredients || []).join('\n'),
+      steps: (r.steps || []).join('\n'),
+      tags: (r.tags || []).join(', '),
+    });
+    setEditing(true);
+  }
+
+  async function saveEdit() {
+    setSaving(true);
+    const updated = {
+      title: editForm.title,
+      image: editForm.image,
+      editor_note: editForm.editorNote,
+      ingredients: editForm.ingredients.split('\n').map(s => s.trim()).filter(Boolean),
+      steps: editForm.steps.split('\n').map(s => s.trim()).filter(Boolean),
+      tags: editForm.tags.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    const { data } = await supabase.from('recipes').update(updated).eq('id', selected.id).select();
+    if (data) {
+      const updatedNorm = norm(data[0]);
+      setRecipes(p => p.map(r => r.id === selected.id ? data[0] : r));
+      setSelected(updatedNorm);
+    }
+    setSaving(false);
+    setEditing(false);
   }
 
   const COLORS = { Italian:'#e8401c', Japanese:'#2563eb', Indian:'#f5a800', Thai:'#2d7a4f', Chinese:'#e8401c', French:'#7c3aed', Default:'#6b4f2a' };
@@ -148,16 +182,65 @@ export default function Home() {
   if (selected) {
     const r = selected;
     const color = cc(r.cuisine);
+
+    if (editing) return (
+      <div style={{ fontFamily:'sans-serif', maxWidth:660, margin:'0 auto', padding:'20px 20px 60px' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
+          <button onClick={()=>setEditing(false)} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>✕ Cancel</button>
+          <button onClick={saveEdit} disabled={saving} style={{ padding:'8px 20px', borderRadius:10, background:'#e8401c', border:'none', color:'#fff', cursor:'pointer', fontWeight:800 }}>
+            {saving ? 'Saving...' : '✓ Save'}
+          </button>
+        </div>
+
+        <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px', marginBottom:14 }}>
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Emoji</label>
+          <input value={editForm.image} onChange={e=>setEditForm(p=>({...p,image:e.target.value}))}
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:32, textAlign:'center', outline:'none', boxSizing:'border-box', marginBottom:16 }}/>
+
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Title</label>
+          <input value={editForm.title} onChange={e=>setEditForm(p=>({...p,title:e.target.value}))}
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:15, fontWeight:700, outline:'none', boxSizing:'border-box', marginBottom:16 }}/>
+
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Tags (comma separated)</label>
+          <input value={editForm.tags} onChange={e=>setEditForm(p=>({...p,tags:e.target.value}))}
+            placeholder="e.g. Indian, Dinner, Spicy"
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:14, outline:'none', boxSizing:'border-box', marginBottom:16 }}/>
+
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Note</label>
+          <input value={editForm.editorNote} onChange={e=>setEditForm(p=>({...p,editorNote:e.target.value}))}
+            placeholder="A tip or note about this recipe"
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:14, outline:'none', boxSizing:'border-box' }}/>
+        </div>
+
+        <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px', marginBottom:14 }}>
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Ingredients (one per line)</label>
+          <textarea value={editForm.ingredients} onChange={e=>setEditForm(p=>({...p,ingredients:e.target.value}))} rows={8}
+            placeholder="200g flour&#10;2 eggs&#10;1 cup milk"
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:14, lineHeight:1.7, resize:'vertical', outline:'none', boxSizing:'border-box', fontFamily:'sans-serif' }}/>
+        </div>
+
+        <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px' }}>
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Steps (one per line)</label>
+          <textarea value={editForm.steps} onChange={e=>setEditForm(p=>({...p,steps:e.target.value}))} rows={8}
+            placeholder="Mix the flour and eggs.&#10;Add milk gradually.&#10;Cook on medium heat."
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:14, lineHeight:1.7, resize:'vertical', outline:'none', boxSizing:'border-box', fontFamily:'sans-serif' }}/>
+        </div>
+      </div>
+    );
+
     return (
       <div style={{ fontFamily:'sans-serif', maxWidth:660, margin:'0 auto', padding:'20px 20px 60px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
-          <button onClick={()=>{setSelected(null);setChecks({});setTab('ingredients');}} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>← Library</button>
-          {r.sourceUrl && (
-            <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer"
-              style={{ padding:'8px 14px', borderRadius:10, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', textDecoration:'none', fontWeight:800, fontSize:13 }}>
-              🔗 View Original
-            </a>
-          )}
+          <button onClick={()=>{setSelected(null);setChecks({});setTab('ingredients');setEditing(false);}} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>← Library</button>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={()=>startEdit(r)} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800, fontSize:13 }}>✏️ Edit</button>
+            {r.sourceUrl && (
+              <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer"
+                style={{ padding:'8px 14px', borderRadius:10, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', textDecoration:'none', fontWeight:800, fontSize:13 }}>
+                🔗 View Original
+              </a>
+            )}
+          </div>
         </div>
         <div style={{ background:color+'15', borderRadius:24, padding:'28px 24px', textAlign:'center', marginBottom:16, border:`2px solid ${color}25`, position:'relative' }}>
           <div style={{ position:'absolute', top:0, left:0, right:0, height:5, background:color, borderRadius:'24px 24px 0 0' }}/>
@@ -165,7 +248,7 @@ export default function Home() {
           <h1 style={{ fontSize:24, fontWeight:900, marginBottom:12 }}>{r.title}</h1>
           <div style={{ display:'flex', gap:6, justifyContent:'center', flexWrap:'wrap', marginBottom:10 }}>
             {[r.cuisine, r.mealType, r.diet!=='None'&&r.diet, r.difficulty].filter(t=>t && t!=='Unknown' && t!=='None').map(t=>(
-    <span key={t} style={{ padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{t}</span>
+              <span key={t} style={{ padding:'3px 10px', borderRadius:99, fontSize:11, fontWeight:800, background:color+'18', color, border:`1.5px solid ${color}30` }}>{t}</span>
             ))}
           </div>
           {r.editorNote && <div style={{ background:'#fff', borderRadius:12, padding:'10px 14px', fontSize:13, color:'#6b4f2a', fontStyle:'italic', marginTop:10, border:'1.5px solid #ede4d4' }}>💡 {r.editorNote}</div>}
@@ -269,7 +352,6 @@ export default function Home() {
                   </div>
                   <div style={{ padding:'12px 14px' }}>
                     <h3 style={{ fontSize:14, fontWeight:800, margin:'0 0 7px', lineHeight:1.3 }}>{nr.title}</h3>
-
                   </div>
                 </div>
               );
@@ -280,4 +362,3 @@ export default function Home() {
     </div>
   );
 }
-
