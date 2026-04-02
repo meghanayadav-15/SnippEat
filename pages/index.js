@@ -83,7 +83,8 @@ export default function Home() {
       const res = await fetch('/api/clip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userContent }),
+        body: JSON.stringify({ userContent, originalUrl: input.trim() }),
+
       });
       const recipe = await res.json();
       if (recipe.error) throw new Error(recipe.error);
