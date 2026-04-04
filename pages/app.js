@@ -31,6 +31,8 @@ export default function Home() {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceStage, setVoiceStage] = useState('');
+  const [isNewCard, setIsNewCard] = useState(false);
+  const [voiceLang, setVoiceLang] = useState('en-US');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -137,6 +139,7 @@ export default function Home() {
       const nr = norm(data[0]);
       setRecipes(p => [data[0], ...p]);
       setSelected(nr);
+      setIsNewCard(true);
       startEdit(nr);
     }
   }
@@ -149,7 +152,7 @@ export default function Home() {
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = navigator.language || 'en-US';    
+    recognition.lang = voiceLang;
     recognition.continuous = true;
     recognition.interimResults = false;
     let transcript = '';
@@ -188,7 +191,8 @@ export default function Home() {
         const res = await fetch('/api/clip', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userContent: `Extract and structure this spoken recipe into English. The user may have spoken in any language — always output the recipe fields in English:\n\n${transcript}`, originalUrl: '' }),        });
+          body: JSON.stringify({ userContent: `Extract and structure this spoken recipe into English. The user may have spoken in any language — always output the recipe fields in English:\n\n${transcript}`, originalUrl: '' }),
+        });
         const recipe = await res.json();
         if (recipe.error) throw new Error(recipe.error);
         const { data } = await supabase.from('recipes').insert([{
@@ -205,6 +209,7 @@ export default function Home() {
         }]).select();
         if (data) {
           const nr = norm(data[0]);
+          setIsNewCard(true);
           setRecipes(p => [data[0], ...p]);
           setSelected(nr);
           startEdit(nr);
@@ -249,6 +254,16 @@ export default function Home() {
     setEditing(true);
   }
 
+  async function cancelEdit() {
+    if (isNewCard && selected) {
+      await supabase.from('recipes').delete().eq('id', selected.id);
+      setRecipes(p => p.filter(r => r.id !== selected.id));
+      setSelected(null);
+      setIsNewCard(false);
+    }
+    setEditing(false);
+  }
+
   async function saveEdit() {
     setSaving(true);
     const updated = {
@@ -267,6 +282,7 @@ export default function Home() {
     }
     setSaving(false);
     setEditing(false);
+    setIsNewCard(false);
   }
 
   async function addCategory() {
@@ -439,7 +455,7 @@ export default function Home() {
       <div style={{ fontFamily:'Nunito, sans-serif', maxWidth:660, margin:'0 auto', padding:'20px 20px 60px' }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
-          <button onClick={()=>setEditing(false)} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>✕ Cancel</button>
+          <button onClick={cancelEdit} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>✕ Cancel</button>
           <button onClick={saveEdit} disabled={saving} style={{ padding:'8px 20px', borderRadius:10, background:'#e8401c', border:'none', color:'#fff', cursor:'pointer', fontWeight:800 }}>
             {saving ? 'Saving...' : '✓ Save'}
           </button>
@@ -508,7 +524,7 @@ export default function Home() {
       <div style={{ fontFamily:'Nunito, sans-serif', maxWidth:660, margin:'0 auto', padding:'20px 20px 60px' }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:20 }}>
-          <button onClick={()=>{setSelected(null);setChecks({});setTab('ingredients');setEditing(false);}} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>← Library</button>
+          <button onClick={()=>{setSelected(null);setChecks({});setTab('ingredients');setEditing(false);setIsNewCard(false);}} style={{ padding:'8px 14px', borderRadius:10, background:'#fff8ee', border:'2px solid #ede4d4', cursor:'pointer', fontWeight:800 }}>← Library</button>
           <div style={{ display:'flex', gap:8 }}>
             <button onClick={(e)=>toggleFavourite(e, r)} style={{ padding:'8px 14px', borderRadius:10, background: r.isFavourite ? '#fef9c3' : '#fff8ee', border: r.isFavourite ? '2px solid #fbbf24' : '2px solid #ede4d4', cursor:'pointer', fontSize:16 }}>
               {r.isFavourite ? '⭐' : '☆'}
@@ -666,12 +682,32 @@ export default function Home() {
                 <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Text</div>
                 <div style={{ fontSize:11, color:'#a0896a' }}>Type it in</div>
               </button>
-              <button onClick={startVoiceEntry}
-                style={{ padding:'16px 12px', borderRadius:14, border:'2px solid #ede4d4', background:'#fff8ee', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif' }}>
+              <div style={{ borderRadius:14, border:'2px solid #ede4d4', background:'#fff8ee', textAlign:'center', padding:'16px 12px' }}>
                 <div style={{ fontSize:28, marginBottom:6 }}>🎤</div>
-                <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Voice</div>
-                <div style={{ fontSize:11, color:'#a0896a' }}>Speak it out</div>
-              </button>
+                <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:6 }}>Voice</div>
+                <select value={voiceLang} onChange={e=>setVoiceLang(e.target.value)}
+                  style={{ width:'100%', padding:'4px 6px', borderRadius:8, border:'1.5px solid #ede4d4', fontSize:11, marginBottom:8, fontFamily:'Nunito, sans-serif', outline:'none' }}>
+                  <option value="en-US">🇺🇸 English</option>
+                  <option value="hi-IN">🇮🇳 Hindi</option>
+                  <option value="es-ES">🇪🇸 Spanish</option>
+                  <option value="fr-FR">🇫🇷 French</option>
+                  <option value="ar-SA">🇸🇦 Arabic</option>
+                  <option value="zh-CN">🇨🇳 Mandarin</option>
+                  <option value="de-DE">🇩🇪 German</option>
+                  <option value="ja-JP">🇯🇵 Japanese</option>
+                  <option value="pt-BR">🇧🇷 Portuguese</option>
+                  <option value="ko-KR">🇰🇷 Korean</option>
+                  <option value="ta-IN">🇮🇳 Tamil</option>
+                  <option value="te-IN">🇮🇳 Telugu</option>
+                  <option value="mr-IN">🇮🇳 Marathi</option>
+                  <option value="gu-IN">🇮🇳 Gujarati</option>
+                  <option value="pa-IN">🇮🇳 Punjabi</option>
+                </select>
+                <button onClick={startVoiceEntry}
+                  style={{ width:'100%', padding:'6px', borderRadius:8, border:'none', background:'#e8401c', color:'#fff', fontSize:11, fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
+                  Start Recording
+                </button>
+              </div>
               <button onClick={()=>alert('Photo entry coming soon! 📷')}
                 style={{ padding:'16px 12px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fffbf5', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif', opacity:0.7 }}>
                 <div style={{ fontSize:28, marginBottom:6 }}>📷</div>
