@@ -28,64 +28,73 @@ export default function Landing() {
     setLoading(false);
   }
 
+  const stickers = [
+    // LEFT SIDE — 4 stickers, tucked to edge so they don't overlap text
+    { s:'🍕', top:'8%',  left:'1%',  dur:'4.2s', size:28, delay:'0s' },
+    { s:'🌿', top:'30%', left:'2%',  dur:'5.1s', size:26, delay:'0.5s' },
+    { s:'🧁', top:'55%', left:'1%',  dur:'3.8s', size:28, delay:'1s' },
+    { s:'🥐', top:'78%', left:'2%',  dur:'4.7s', size:26, delay:'1.5s' },
+
+    // CENTER GAP
+    { s:'🍕', top:'8%',  left:'44%', dur:'4.2s', size:32, delay:'0.2s' },
+    { s:'🧁', top:'22%', left:'47%', dur:'5.1s', size:28, delay:'0.7s' },
+    { s:'🌮', top:'38%', left:'43%', dur:'3.8s', size:30, delay:'0.3s' },
+    { s:'🥑', top:'54%', left:'46%', dur:'4.7s', size:28, delay:'1.2s' },
+    { s:'🍜', top:'70%', left:'44%', dur:'5.5s', size:30, delay:'0.8s' },
+    { s:'🍋', top:'85%', left:'45%', dur:'4.4s', size:26, delay:'0.4s' },
+
+    // RIGHT OF DEMO BOX
+    { s:'🫐', top:'5%',  left:'72%', dur:'5.8s', size:28, delay:'0.6s' },
+    { s:'🍣', top:'18%', left:'75%', dur:'4.9s', size:30, delay:'1.1s' },
+    { s:'🥕', top:'33%', left:'73%', dur:'3.6s', size:26, delay:'0.9s' },
+    { s:'🍰', top:'50%', left:'76%', dur:'5.3s', size:28, delay:'0.1s' },
+    { s:'🥟', top:'65%', left:'74%', dur:'4.5s', size:26, delay:'1.4s' },
+    { s:'🫙', top:'80%', left:'72%', dur:'5.2s', size:28, delay:'0.3s' },
+
+    // FAR RIGHT EDGE
+    { s:'🌶', top:'10%', left:'89%', dur:'4.1s', size:28, delay:'0.7s' },
+    { s:'🍛', top:'25%', left:'91%', dur:'6.1s', size:26, delay:'0.2s' },
+    { s:'🧀', top:'42%', left:'88%', dur:'4.8s', size:28, delay:'1.3s' },
+    { s:'🥧', top:'58%', left:'90%', dur:'5.6s', size:26, delay:'0.5s' },
+    { s:'🫔', top:'73%', left:'89%', dur:'4.3s', size:28, delay:'1.0s' },
+    { s:'🍵', top:'88%', left:'91%', dur:'5.0s', size:26, delay:'0.4s' },
+
+    // BOTTOM
+    { s:'🥞', top:'93%', left:'25%', dur:'4.6s', size:26, delay:'0.8s' },
+    { s:'🍡', top:'95%', left:'50%', dur:'5.3s', size:24, delay:'0.2s' },
+    { s:'🥗', top:'94%', left:'65%', dur:'4.1s', size:26, delay:'1.1s' },
+    { s:'🧇', top:'96%', left:'80%', dur:'5.7s', size:24, delay:'0.6s' },
+  ];
+
   return (
     <div style={{ minHeight:'100vh', background:'#fffbf5', fontFamily:'Nunito, sans-serif', position:'relative', overflow:'hidden' }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');
-
-        @keyframes float1 { 0%,100%{transform:translateY(0px) rotate(-12deg)} 50%{transform:translateY(-14px) rotate(-10deg)} }
-        @keyframes float2 { 0%,100%{transform:translateY(0px) rotate(10deg)} 50%{transform:translateY(-18px) rotate(13deg)} }
-        @keyframes float3 { 0%,100%{transform:translateY(0px) rotate(-7deg)} 50%{transform:translateY(-10px) rotate(-5deg)} }
-        @keyframes float4 { 0%,100%{transform:translateY(0px) rotate(14deg)} 50%{transform:translateY(-16px) rotate(11deg)} }
-        @keyframes float5 { 0%,100%{transform:translateY(0px) rotate(-5deg)} 50%{transform:translateY(-12px) rotate(-8deg)} }
-        @keyframes float6 { 0%,100%{transform:translateY(0px) rotate(8deg)} 50%{transform:translateY(-20px) rotate(6deg)} }
-        @keyframes float7 { 0%,100%{transform:translateY(0px) rotate(12deg)} 50%{transform:translateY(-8px) rotate(15deg)} }
-        @keyframes float8 { 0%,100%{transform:translateY(0px) rotate(-9deg)} 50%{transform:translateY(-15px) rotate(-12deg)} }
-        @keyframes float9 { 0%,100%{transform:translateY(0px) rotate(5deg)} 50%{transform:translateY(-11px) rotate(8deg)} }
-        @keyframes float10 { 0%,100%{transform:translateY(0px) rotate(-15deg)} 50%{transform:translateY(-13px) rotate(-12deg)} }
+        @keyframes floatUp {
+          0%   { transform: translateY(0px)   rotate(var(--r)); }
+          50%  { transform: translateY(-16px) rotate(calc(var(--r) + 4deg)); }
+          100% { transform: translateY(0px)   rotate(var(--r)); }
+        }
+        .sticker {
+          position: absolute;
+          opacity: 0.18;
+          user-select: none;
+          animation: floatUp var(--dur) ease-in-out infinite;
+          animation-delay: var(--delay);
+        }
       `}</style>
-{/* ANIMATED STICKERS */}
+
+      {/* STICKERS */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
-        {[
-          // CENTER GAP (between text and demo box)
-          { s:'🍕', top:'8%',  left:'44%', anim:'f1',  dur:'4.2s', size:32 },
-          { s:'🧁', top:'22%', left:'47%', anim:'f2',  dur:'5.1s', size:28 },
-          { s:'🌮', top:'38%', left:'43%', anim:'f3',  dur:'3.8s', size:30 },
-          { s:'🥑', top:'54%', left:'46%', anim:'f4',  dur:'4.7s', size:28 },
-          { s:'🍜', top:'70%', left:'44%', anim:'f5',  dur:'5.5s', size:30 },
-          { s:'🍋', top:'85%', left:'45%', anim:'f6',  dur:'4.4s', size:26 },
-
-          // RIGHT OF DEMO BOX
-          { s:'🫐', top:'5%',  left:'72%', anim:'f7',  dur:'5.8s', size:28 },
-          { s:'🍣', top:'18%', left:'75%', anim:'f8',  dur:'4.9s', size:30 },
-          { s:'🥕', top:'33%', left:'73%', anim:'f9',  dur:'3.6s', size:26 },
-          { s:'🍰', top:'50%', left:'76%', anim:'f10', dur:'5.3s', size:28 },
-          { s:'🥟', top:'65%', left:'74%', anim:'f11', dur:'4.5s', size:26 },
-          { s:'🫙', top:'80%', left:'72%', anim:'f12', dur:'5.2s', size:28 },
-
-          // FAR RIGHT EDGE
-          { s:'🌶', top:'10%', left:'89%', anim:'f13', dur:'4.1s', size:28 },
-          { s:'🍛', top:'25%', left:'91%', anim:'f14', dur:'6.1s', size:26 },
-          { s:'🧀', top:'42%', left:'88%', anim:'f15', dur:'4.8s', size:28 },
-          { s:'🥧', top:'58%', left:'90%', anim:'f16', dur:'5.6s', size:26 },
-          { s:'🫔', top:'73%', left:'89%', anim:'f1',  dur:'4.3s', size:28 },
-          { s:'🍵', top:'88%', left:'91%', anim:'f3',  dur:'5.0s', size:26 },
-
-          // BOTTOM STRIP (below content on both sides)
-          { s:'🥞', top:'93%', left:'25%', anim:'f5',  dur:'4.6s', size:26 },
-          { s:'🍡', top:'95%', left:'50%', anim:'f7',  dur:'5.3s', size:24 },
-          { s:'🥗', top:'94%', left:'65%', anim:'f9',  dur:'4.1s', size:26 },
-          { s:'🧇', top:'96%', left:'80%', anim:'f11', dur:'5.7s', size:24 },
-        ].map((st, i) => (
-          <div key={i} style={{
-            position:'absolute',
-            top:st.top,
-            left:st.left,
-            fontSize:st.size,
-            opacity:0.18,
-            animation:`${st.anim} ${st.dur} ease-in-out infinite`,
-            userSelect:'none',
+        {stickers.map((st, i) => (
+          <div key={i} className="sticker" style={{
+            top: st.top,
+            left: st.left,
+            fontSize: st.size,
+            '--dur': st.dur,
+            '--delay': st.delay,
+            '--r': `${(i % 2 === 0 ? 1 : -1) * (5 + (i % 4) * 3)}deg`,
           }}>{st.s}</div>
         ))}
       </div>
@@ -117,7 +126,7 @@ export default function Landing() {
             One cozy place for every recipe you love.
           </p>
           <p style={{ fontSize:15, color:'#6b4f2a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800 }}>
-            Free forever, just like grandma's recipes. 
+            Free forever, just like grandma's recipes.
           </p>
           <button onClick={()=>router.push('/app')}
             style={{ padding:'16px 32px', borderRadius:16, background:'#e8401c', border:'none', cursor:'pointer', fontSize:16, fontWeight:900, color:'#fff', marginBottom:48, fontFamily:'Nunito, sans-serif' }}
