@@ -569,8 +569,24 @@ export default function Home() {
             <h3 style={{ fontFamily:'Caveat, cursive', fontSize:24, fontWeight:700, marginBottom:8, color:'#1a1008' }}>Listening...</h3>
             <p style={{ color:'#a0896a', fontSize:14, marginBottom:24 }}>Speak your recipe clearly. I'll stop after 30 seconds.</p>
             <p style={{ fontSize:13, color:'#6b4f2a', fontWeight:700, marginBottom:20 }}>{voiceStage}</p>
-            <button onClick={()=>setListening(false)} style={{ padding:'10px 24px', borderRadius:12, background:'#fef2f2', border:'2px solid #fca5a5', color:'#e8401c', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>Cancel</button>
-          </div>
+            <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+              <button onClick={()=>{ try{ window._activeRecognition.stop(); }catch(e){} setListening(false); setVoiceStage(''); }}
+                style={{ padding:'10px 20px', borderRadius:12, background:'#fef2f2', border:'2px solid #fca5a5', color:'#e8401c', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
+                ✕ Cancel
+              </button>
+              <button onClick={()=>{ try{ window._activeRecognition.stop(); }catch(e){} }}
+                style={{ padding:'10px 20px', borderRadius:12, background:'#fff8ee', border:'2px solid #ede4d4', color:'#6b4f2a', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
+                ✓ Done
+              </button>
+              <button onClick={()=>{
+                try{ window._activeRecognition.stop(); }catch(e){}
+                setTimeout(()=>{ startVoiceEntry(); }, 500);
+              }}
+                style={{ padding:'10px 20px', borderRadius:12, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
+                🔄 Redo
+              </button>
+            </div>
+        </div>
         </div>
       )}
 
