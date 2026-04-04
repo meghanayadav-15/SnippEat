@@ -28,6 +28,7 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [managingCats, setManagingCats] = useState(false);
   const [newCat, setNewCat] = useState({ name:'', emoji:'🏷', color:'#e8401c' });
+  const [addingManual, setAddingManual] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -114,6 +115,28 @@ export default function Home() {
       if (data) { setRecipes(p => [data[0], ...p]); setSelected(norm(data[0])); setInput(''); }
     } catch(e) { alert('Could not clip. Try pasting the recipe text directly!'); }
     setLoading(false); setStage('');
+  }
+
+  async function createManualRecipe() {
+    const { data } = await supabase.from('recipes').insert([{
+      user_id: user.id,
+      title: 'My Recipe',
+      image: '🍽️',
+      ingredients: [],
+      steps: [],
+      tags: [],
+      category_ids: [],
+      is_favourite: false,
+      source_type: 'text',
+      clipped_at: new Date().toISOString(),
+    }]).select();
+    if (data) {
+      const nr = norm(data[0]);
+      setRecipes(p => [data[0], ...p]);
+      setSelected(nr);
+      startEdit(nr);
+    }
+    setAddingManual(false);
   }
 
   function norm(r) {
@@ -209,7 +232,6 @@ export default function Home() {
   if (!user) return (
     <div style={{ minHeight:'100vh', background:'#fffbf5', display:'flex', alignItems:'center', justifyContent:'center', padding:24, fontFamily:'Nunito, sans-serif', position:'relative', overflow:'hidden' }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
-      {/* faded stickers on login */}
       {[{s:'🍕',top:'8%',left:'3%',rot:'-12deg'},{s:'🌮',top:'15%',right:'4%',rot:'10deg'},{s:'🧁',bottom:'20%',left:'2%',rot:'-7deg'},{s:'🥑',bottom:'10%',right:'3%',rot:'14deg'}].map((st,i)=>(
         <div key={i} style={{ position:'fixed', top:st.top, left:st.left, right:st.right, bottom:st.bottom, fontSize:36, opacity:0.12, transform:`rotate(${st.rot})`, userSelect:'none', pointerEvents:'none' }}>{st.s}</div>
       ))}
@@ -418,7 +440,6 @@ export default function Home() {
     <div style={{ fontFamily:'Nunito, sans-serif', background:'#fffbf5', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
 
-      {/* faded stickers */}
       {[{s:'🍕',top:'12%',right:'1%',rot:'10deg'},{s:'🧁',top:'50%',right:'0%',rot:'-8deg'},{s:'🥕',top:'75%',right:'1%',rot:'5deg'},{s:'🍜',top:'30%',left:'0%',rot:'-10deg'}].map((st,i)=>(
         <div key={i} style={{ position:'fixed', top:st.top, left:st.left, right:st.right, fontSize:32, opacity:0.1, transform:`rotate(${st.rot})`, userSelect:'none', pointerEvents:'none', zIndex:0 }}>{st.s}</div>
       ))}
@@ -432,7 +453,9 @@ export default function Home() {
       </nav>
 
       <div style={{ maxWidth:920, margin:'0 auto', padding:'24px 20px', position:'relative', zIndex:1 }}>
-        <div style={{ background:'#fff', borderRadius:24, border:'2px solid #ede4d4', overflow:'hidden', marginBottom:28 }}>
+
+        {/* CLIP BOX */}
+        <div style={{ background:'#fff', borderRadius:24, border:'2px solid #ede4d4', overflow:'hidden', marginBottom:16 }}>
           <div style={{ height:6, background:'linear-gradient(90deg,#e8401c,#f5a800,#2d7a4f,#2563eb)' }}/>
           <div style={{ padding:'22px 24px' }}>
             <h2 style={{ fontFamily:'Caveat, cursive', fontSize:24, fontWeight:700, marginBottom:4, color:'#1a1008' }}>✂️ Clip a Recipe</h2>
@@ -446,6 +469,12 @@ export default function Home() {
             </button>
           </div>
         </div>
+
+        {/* ADD MANUALLY BUTTON */}
+        <button onClick={createManualRecipe}
+          style={{ width:'100%', padding:'13px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fff8ee', color:'#6b4f2a', fontSize:14, fontWeight:800, cursor:'pointer', marginBottom:28, fontFamily:'Nunito, sans-serif' }}>
+          ✏️ Add Recipe Manually
+        </button>
 
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
           <h2 style={{ fontFamily:'Caveat, cursive', fontSize:28, fontWeight:700, margin:0, color:'#1a1008' }}>My Library 📚</h2>
