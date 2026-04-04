@@ -90,8 +90,8 @@ export default function Landing() {
           <div style={{ display:'inline-block', background:'#fef0ec', borderRadius:99, padding:'6px 16px', fontSize:12, fontWeight:800, color:'#e8401c', marginBottom:24, border:'1.5px solid #fca5a5' }}>
             🍴 Free Forever — No Limits
           </div>
-        <h1 style={{ fontFamily:'Caveat, cursive', fontSize:56, fontWeight:700, lineHeight:1.2, marginBottom:16, color:'#1a1008' }}>
-            Are Your Recipes <span style={{ color:'#e8401c' }}>Everywhere?</span><br/>
+          <h1 style={{ fontFamily:'Caveat, cursive', fontSize:56, fontWeight:700, lineHeight:1.2, marginBottom:16, color:'#1a1008' }}>
+            <span style={{ color:'#e8401c' }}>Are Your Recipes Everywhere?</span><br/>
             Not Anymore.
           </h1>
           <p style={{ fontSize:16, color:'#6b4f2a', lineHeight:1.75, marginBottom:8, maxWidth:420, fontWeight:800 }}>
