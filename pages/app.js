@@ -297,9 +297,50 @@ export default function Home() {
 
   if (!user) return (
     <div style={{ minHeight:'100vh', background:'#fffbf5', display:'flex', alignItems:'center', justifyContent:'center', padding:24, fontFamily:'Nunito, sans-serif', position:'relative', overflow:'hidden' }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
-      {[{s:'🍕',top:'8%',left:'3%',rot:'-12deg'},{s:'🌮',top:'15%',right:'4%',rot:'10deg'},{s:'🧁',bottom:'20%',left:'2%',rot:'-7deg'},{s:'🥑',bottom:'10%',right:'3%',rot:'14deg'}].map((st,i)=>(
-        <div key={i} style={{ position:'fixed', top:st.top, left:st.left, right:st.right, bottom:st.bottom, fontSize:36, opacity:0.12, transform:`rotate(${st.rot})`, userSelect:'none', pointerEvents:'none' }}>{st.s}</div>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');
+        @keyframes floatUp {
+          0%   { transform: translateY(0px)   rotate(var(--r)); }
+          50%  { transform: translateY(-16px) rotate(calc(var(--r) + 4deg)); }
+          100% { transform: translateY(0px)   rotate(var(--r)); }
+        }
+        .lsticker {
+          position: fixed;
+          opacity: 0.15;
+          user-select: none;
+          pointer-events: none;
+          animation: floatUp var(--dur) ease-in-out infinite;
+          animation-delay: var(--delay);
+        }
+      `}</style>
+      {[
+        { s:'🍕', top:'4%',  left:'2%',   dur:'4.2s', delay:'0s',   size:32 },
+        { s:'🌿', top:'22%', left:'1%',   dur:'5.1s', delay:'0.5s', size:28 },
+        { s:'🧁', top:'45%', left:'2%',   dur:'3.8s', delay:'1s',   size:30 },
+        { s:'🥐', top:'68%', left:'1%',   dur:'4.7s', delay:'1.5s', size:28 },
+        { s:'🍜', top:'85%', left:'3%',   dur:'5.5s', delay:'0.3s', size:30 },
+        { s:'🍋', top:'8%',  left:'14%',  dur:'4.4s', delay:'0.8s', size:26 },
+        { s:'🥑', top:'30%', left:'12%',  dur:'5.8s', delay:'0.2s', size:28 },
+        { s:'🫐', top:'55%', left:'13%',  dur:'4.1s', delay:'1.2s', size:26 },
+        { s:'🍰', top:'78%', left:'11%',  dur:'5.3s', delay:'0.6s', size:28 },
+        { s:'🍓', top:'5%',  left:'86%',  dur:'4.6s', delay:'0.4s', size:30 },
+        { s:'🥦', top:'25%', left:'88%',  dur:'5.2s', delay:'1.1s', size:26 },
+        { s:'🍄', top:'48%', left:'87%',  dur:'3.9s', delay:'0.7s', size:28 },
+        { s:'🌽', top:'70%', left:'89%',  dur:'4.8s', delay:'1.3s', size:26 },
+        { s:'🍇', top:'88%', left:'86%',  dur:'5.6s', delay:'0.9s', size:28 },
+        { s:'🌶', top:'4%',  left:'95%',  dur:'4.3s', delay:'0.2s', size:28 },
+        { s:'🧄', top:'28%', left:'94%',  dur:'5.0s', delay:'0.8s', size:26 },
+        { s:'🥕', top:'52%', left:'95%',  dur:'4.5s', delay:'1.4s', size:28 },
+        { s:'🫙', top:'75%', left:'94%',  dur:'5.7s', delay:'0.5s', size:26 },
+        { s:'🍵', top:'92%', left:'95%',  dur:'4.2s', delay:'1.0s', size:28 },
+      ].map((st, i) => (
+        <div key={i} className="lsticker" style={{
+          top: st.top, left: st.left,
+          fontSize: st.size,
+          '--dur': st.dur,
+          '--delay': st.delay,
+          '--r': `${(i % 2 === 0 ? 1 : -1) * (5 + (i % 4) * 3)}deg`,
+        }}>{st.s}</div>
       ))}
       <div style={{ maxWidth:400, width:'100%', textAlign:'center', position:'relative', zIndex:1 }}>
         <div style={{ fontFamily:'Caveat, cursive', fontSize:48, marginBottom:8 }}>📌Snipp<span style={{color:'#e8401c'}}>Eat</span>🍴</div>
