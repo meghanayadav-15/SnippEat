@@ -322,9 +322,19 @@ export default function Home() {
           </button>
         </div>
         <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px', marginBottom:14 }}>
-          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Emoji</label>
+         <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Emoji</label>
           <input value={editForm.image} onChange={e=>setEditForm(p=>({...p,image:e.target.value}))}
-            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:32, textAlign:'center', outline:'none', boxSizing:'border-box', marginBottom:16 }}/>
+            style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:32, textAlign:'center', outline:'none', boxSizing:'border-box', marginBottom:10 }}/>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:16 }}>
+            {['🍕','🌮','🍜','🍝','🥘','🍛','🍲','🥗','🍱','🥙','🫔','🍣','🥟','🧆','🍳','🥞','🧇','🥓','🍗','🥩','🍖','🌯','🥪','🧀','🥚','🍙','🍚','🍢','🍡','🧁','🎂','🍰','🍩','🍪','🍫','🍬','🍭','🍮','🍨','🍦','🥧','🍧','🥤','🍵','☕','🫖','🧃','🥛','🍺','🍷','🥂','🍾','🥑','🍅','🥦','🥕','🌽','🧄','🧅','🍄','🫑','🥒','🍆','🌶','🫛','🥜','🫘','🍞','🥐','🥖','🫓','🥨','🥯','🧈'].map(em=>(
+              <div key={em} onClick={()=>setEditForm(p=>({...p,image:em}))}
+                style={{ width:36, height:36, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, cursor:'pointer', background: editForm.image===em ? '#fef0ec' : '#fff8ee', border: editForm.image===em ? '2px solid #e8401c' : '2px solid #ede4d4', transition:'transform 0.1s' }}
+                onMouseEnter={e=>e.currentTarget.style.transform='scale(1.2)'}
+                onMouseLeave={e=>e.currentTarget.style.transform='none'}>
+                {em}
+              </div>
+            ))}
+          </div>
           <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Title</label>
           <input value={editForm.title} onChange={e=>setEditForm(p=>({...p,title:e.target.value}))}
             style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:15, fontWeight:700, outline:'none', boxSizing:'border-box', marginBottom:16, fontFamily:'Nunito, sans-serif' }}/>
