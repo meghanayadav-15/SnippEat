@@ -28,7 +28,9 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [managingCats, setManagingCats] = useState(false);
   const [newCat, setNewCat] = useState({ name:'', emoji:'🏷', color:'#e8401c' });
-  const [addingManual, setAddingManual] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [voiceStage, setVoiceStage] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -118,6 +120,7 @@ export default function Home() {
   }
 
   async function createManualRecipe() {
+    setShowAddMenu(false);
     const { data } = await supabase.from('recipes').insert([{
       user_id: user.id,
       title: 'My Recipe',
@@ -136,7 +139,70 @@ export default function Home() {
       setSelected(nr);
       startEdit(nr);
     }
-    setAddingManual(false);
+  }
+
+  async function startVoiceEntry() {
+    setShowAddMenu(false);
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice entry is not supported in this browser. Please try Chrome!');
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    let transcript = '';
+    setListening(true);
+    setVoiceStage('🎤 Listening... speak your recipe now');
+    recognition.onresult = (e) => {
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript + ' ';
+      }
+    };
+    recognition.onerror = () => {
+      setListening(false);
+      setVoiceStage('');
+      alert('Could not hear you. Please try again!');
+    };
+    recognition.onend = async () => {
+      setListening(false);
+      if (!transcript.trim()) { setVoiceStage(''); return; }
+      setVoiceStage('🤖 AI is reading your recipe...');
+      try {
+        const res = await fetch('/api/clip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userContent: `Extract and structure this spoken recipe:\n\n${transcript}`, originalUrl: '' }),
+        });
+        const recipe = await res.json();
+        if (recipe.error) throw new Error(recipe.error);
+        const { data } = await supabase.from('recipes').insert([{
+          user_id: user.id,
+          title: recipe.title, cuisine: recipe.cuisine, meal_type: recipe.mealType,
+          diet: recipe.diet, difficulty: recipe.difficulty,
+          prep_time: recipe.prepTime, cook_time: recipe.cookTime, total_time: recipe.totalTime,
+          servings: recipe.servings, calories: recipe.calories, image: recipe.image,
+          tags: recipe.tags, ingredients: recipe.ingredients, steps: recipe.steps,
+          nutrition: recipe.nutrition, editor_note: recipe.editorNote,
+          source_url: '', source_type: 'text',
+          is_favourite: false, category_ids: [],
+          clipped_at: new Date().toISOString(),
+        }]).select();
+        if (data) {
+          const nr = norm(data[0]);
+          setRecipes(p => [data[0], ...p]);
+          setSelected(nr);
+          startEdit(nr);
+        }
+      } catch(e) {
+        alert('Could not extract recipe from voice. Please try again!');
+      }
+      setVoiceStage('');
+    };
+    recognition.start();
+    // Auto stop after 30 seconds
+    setTimeout(() => { try { recognition.stop(); } catch(e) {} }, 30000);
   }
 
   function norm(r) {
@@ -322,7 +388,7 @@ export default function Home() {
           </button>
         </div>
         <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px', marginBottom:14 }}>
-         <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Emoji</label>
+          <label style={{ fontSize:11, color:'#a0896a', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.08em', display:'block', marginBottom:6 }}>Emoji</label>
           <input value={editForm.image} onChange={e=>setEditForm(p=>({...p,image:e.target.value}))}
             style={{ width:'100%', padding:'10px 12px', borderRadius:10, border:'2px solid #ede4d4', fontSize:32, textAlign:'center', outline:'none', boxSizing:'border-box', marginBottom:10 }}/>
           <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:16 }}>
@@ -454,6 +520,29 @@ export default function Home() {
         <div key={i} style={{ position:'fixed', top:st.top, left:st.left, right:st.right, fontSize:32, opacity:0.1, transform:`rotate(${st.rot})`, userSelect:'none', pointerEvents:'none', zIndex:0 }}>{st.s}</div>
       ))}
 
+      {/* VOICE LISTENING OVERLAY */}
+      {listening && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ background:'#fff', borderRadius:24, padding:'40px 32px', textAlign:'center', maxWidth:360, width:'90%' }}>
+            <div style={{ fontSize:64, marginBottom:16, animation:'pulse 1s infinite' }}>🎤</div>
+            <style>{`@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }`}</style>
+            <h3 style={{ fontFamily:'Caveat, cursive', fontSize:24, fontWeight:700, marginBottom:8, color:'#1a1008' }}>Listening...</h3>
+            <p style={{ color:'#a0896a', fontSize:14, marginBottom:24 }}>Speak your recipe clearly. I'll stop after 30 seconds.</p>
+            <p style={{ fontSize:13, color:'#6b4f2a', fontWeight:700, marginBottom:20 }}>{voiceStage}</p>
+            <button onClick={()=>setListening(false)} style={{ padding:'10px 24px', borderRadius:12, background:'#fef2f2', border:'2px solid #fca5a5', color:'#e8401c', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {voiceStage && !listening && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ background:'#fff', borderRadius:24, padding:'40px 32px', textAlign:'center', maxWidth:360, width:'90%' }}>
+            <div style={{ fontSize:48, marginBottom:16 }}>🤖</div>
+            <p style={{ fontSize:15, color:'#6b4f2a', fontWeight:700 }}>{voiceStage}</p>
+          </div>
+        </div>
+      )}
+
       <nav style={{ background:'rgba(255,251,245,0.95)', backdropFilter:'blur(8px)', borderBottom:'2px solid #ede4d4', padding:'0 20px', height:60, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:100 }}>
         <span style={{ fontFamily:'Caveat, cursive', fontSize:26, fontWeight:700, color:'#1a1008' }}>📌Snipp<span style={{color:'#e8401c'}}>Eat</span>🍴</span>
         <div style={{ display:'flex', gap:10, alignItems:'center' }}>
@@ -480,11 +569,40 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ADD MANUALLY BUTTON */}
-        <button onClick={createManualRecipe}
-          style={{ width:'100%', padding:'13px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fff8ee', color:'#6b4f2a', fontSize:14, fontWeight:800, cursor:'pointer', marginBottom:28, fontFamily:'Nunito, sans-serif' }}>
-          ✏️ Add Recipe Manually
-        </button>
+        {/* ADD MANUALLY — 3 OPTIONS */}
+        {!showAddMenu ? (
+          <button onClick={()=>setShowAddMenu(true)}
+            style={{ width:'100%', padding:'13px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fff8ee', color:'#6b4f2a', fontSize:14, fontWeight:800, cursor:'pointer', marginBottom:28, fontFamily:'Nunito, sans-serif' }}>
+            ✏️ Add Recipe Manually
+          </button>
+        ) : (
+          <div style={{ background:'#fff', borderRadius:20, border:'2px solid #ede4d4', padding:'20px', marginBottom:28 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+              <p style={{ fontFamily:'Caveat, cursive', fontSize:18, fontWeight:700, margin:0, color:'#1a1008' }}>How would you like to add?</p>
+              <button onClick={()=>setShowAddMenu(false)} style={{ background:'none', border:'none', fontSize:18, cursor:'pointer', color:'#a0896a' }}>✕</button>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
+              <button onClick={createManualRecipe}
+                style={{ padding:'16px 12px', borderRadius:14, border:'2px solid #ede4d4', background:'#fff8ee', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif' }}>
+                <div style={{ fontSize:28, marginBottom:6 }}>✏️</div>
+                <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Text</div>
+                <div style={{ fontSize:11, color:'#a0896a' }}>Type it in</div>
+              </button>
+              <button onClick={startVoiceEntry}
+                style={{ padding:'16px 12px', borderRadius:14, border:'2px solid #ede4d4', background:'#fff8ee', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif' }}>
+                <div style={{ fontSize:28, marginBottom:6 }}>🎤</div>
+                <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Voice</div>
+                <div style={{ fontSize:11, color:'#a0896a' }}>Speak it out</div>
+              </button>
+              <button onClick={()=>alert('Photo entry coming soon! 📷')}
+                style={{ padding:'16px 12px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fffbf5', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif', opacity:0.7 }}>
+                <div style={{ fontSize:28, marginBottom:6 }}>📷</div>
+                <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Photo</div>
+                <div style={{ fontSize:11, color:'#a0896a' }}>Coming soon</div>
+              </button>
+            </div>
+          </div>
+        )}
 
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
           <h2 style={{ fontFamily:'Caveat, cursive', fontSize:28, fontWeight:700, margin:0, color:'#1a1008' }}>My Library 📚</h2>
