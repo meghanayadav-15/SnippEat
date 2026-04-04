@@ -49,22 +49,62 @@ export default function Landing() {
       {/* ANIMATED STICKERS */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
         {[
-          { s:'🍕', top:'6%',  left:'2%',   anim:'float1',  dur:'4.2s', size:40, opacity:0.18 },
-          { s:'🌮', top:'12%', right:'3%',   anim:'float2',  dur:'5.1s', size:34, opacity:0.16 },
-          { s:'🧁', top:'38%', left:'1%',    anim:'float3',  dur:'3.8s', size:36, opacity:0.17 },
-          { s:'🥑', top:'65%', right:'2%',   anim:'float4',  dur:'4.7s', size:32, opacity:0.15 },
-          { s:'🍜', top:'80%', left:'3%',    anim:'float5',  dur:'5.5s', size:38, opacity:0.16 },
-          { s:'🫙', top:'28%', right:'1.5%', anim:'float6',  dur:'6.1s', size:30, opacity:0.14 },
-          { s:'🍳', top:'52%', left:'1.5%',  anim:'float7',  dur:'4.4s', size:34, opacity:0.15 },
-          { s:'🧄', top:'88%', right:'4%',   anim:'float8',  dur:'5.8s', size:30, opacity:0.14 },
-          { s:'🍝', top:'4%',  right:'9%',   anim:'float9',  dur:'4.9s', size:28, opacity:0.13 },
-          { s:'🥕', top:'72%', left:'7%',    anim:'float10', dur:'3.6s', size:32, opacity:0.15 },
+          // LEFT EDGE
+          { s:'🍕', top:'5%',  left:'2%',   anim:'f1',  dur:'4.2s', size:36 },
+          { s:'🌮', top:'18%', left:'1%',   anim:'f2',  dur:'5.1s', size:32 },
+          { s:'🧁', top:'32%', left:'3%',   anim:'f3',  dur:'3.8s', size:34 },
+          { s:'🍳', top:'48%', left:'1%',   anim:'f4',  dur:'4.7s', size:30 },
+          { s:'🫕', top:'63%', left:'2%',   anim:'f5',  dur:'5.5s', size:32 },
+          { s:'🌿', top:'78%', left:'1%',   anim:'f6',  dur:'4.4s', size:28 },
+          { s:'🥐', top:'90%', left:'3%',   anim:'f7',  dur:'5.8s', size:30 },
+
+          // LEFT-CENTER
+          { s:'🫐', top:'8%',  left:'14%',  anim:'f8',  dur:'4.9s', size:28 },
+          { s:'🥑', top:'25%', left:'12%',  anim:'f9',  dur:'3.6s', size:30 },
+          { s:'🍜', top:'42%', left:'15%',  anim:'f10', dur:'5.3s', size:32 },
+          { s:'🥕', top:'58%', left:'13%',  anim:'f11', dur:'4.5s', size:28 },
+          { s:'🍋', top:'74%', left:'14%',  anim:'f12', dur:'5.2s', size:30 },
+          { s:'🥞', top:'88%', left:'12%',  anim:'f13', dur:'4.1s', size:28 },
+
+          // CENTER
+          { s:'🍰', top:'4%',  left:'28%',  anim:'f14', dur:'6.1s', size:28 },
+          { s:'🧆', top:'20%', left:'32%',  anim:'f15', dur:'4.8s', size:26 },
+          { s:'🍱', top:'38%', left:'28%',  anim:'f16', dur:'5.6s', size:30 },
+          { s:'🥘', top:'55%', left:'33%',  anim:'f1',  dur:'4.3s', size:28 },
+          { s:'🫔', top:'70%', left:'29%',  anim:'f3',  dur:'5.0s', size:30 },
+          { s:'🍇', top:'85%', left:'31%',  anim:'f5',  dur:'4.6s', size:28 },
+
+          // RIGHT-CENTER
+          { s:'🌶', top:'7%',  left:'55%',  anim:'f7',  dur:'5.4s', size:28 },
+          { s:'🧀', top:'22%', left:'58%',  anim:'f9',  dur:'4.2s', size:26 },
+          { s:'🍛', top:'40%', left:'55%',  anim:'f11', dur:'5.7s', size:30 },
+          { s:'🥟', top:'56%', left:'57%',  anim:'f13', dur:'4.0s', size:28 },
+          { s:'🫓', top:'72%', left:'54%',  anim:'f15', dur:'5.3s', size:26 },
+          { s:'🍵', top:'87%', left:'56%',  anim:'f2',  dur:'4.7s', size:28 },
+
+          // RIGHT EDGE
+          { s:'🍣', top:'5%',  left:'72%',  anim:'f4',  dur:'5.1s', size:30 },
+          { s:'🫙', top:'20%', left:'75%',  anim:'f6',  dur:'4.4s', size:28 },
+          { s:'🥙', top:'35%', left:'73%',  anim:'f8',  dur:'5.8s', size:30 },
+          { s:'🍢', top:'50%', left:'76%',  anim:'f10', dur:'4.2s', size:26 },
+          { s:'🥮', top:'65%', left:'72%',  anim:'f12', dur:'5.5s', size:28 },
+          { s:'🧇', top:'80%', left:'74%',  anim:'f14', dur:'4.9s', size:30 },
+          { s:'🥓', top:'92%', left:'73%',  anim:'f16', dur:'5.2s', size:26 },
+
+          // FAR RIGHT
+          { s:'🌯', top:'10%', left:'88%',  anim:'f1',  dur:'4.6s', size:28 },
+          { s:'🍲', top:'28%', left:'90%',  anim:'f3',  dur:'5.3s', size:30 },
+          { s:'🥧', top:'45%', left:'87%',  anim:'f5',  dur:'4.1s', size:26 },
+          { s:'🫖', top:'62%', left:'91%',  anim:'f7',  dur:'5.7s', size:28 },
+          { s:'🥗', top:'78%', left:'88%',  anim:'f9',  dur:'4.4s', size:30 },
+          { s:'🍡', top:'93%', left:'90%',  anim:'f11', dur:'5.0s', size:26 },
         ].map((st, i) => (
           <div key={i} style={{
             position:'absolute',
-            top:st.top, left:st.left, right:st.right,
+            top:st.top,
+            left:st.left,
             fontSize:st.size,
-            opacity:st.opacity,
+            opacity:0.15,
             animation:`${st.anim} ${st.dur} ease-in-out infinite`,
             userSelect:'none',
           }}>{st.s}</div>
