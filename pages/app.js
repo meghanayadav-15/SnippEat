@@ -149,7 +149,7 @@ export default function Home() {
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
+    recognition.lang = navigator.language || 'en-US';    
     recognition.continuous = true;
     recognition.interimResults = false;
     let transcript = '';
