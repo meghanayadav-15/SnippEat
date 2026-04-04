@@ -90,14 +90,15 @@ export default function Landing() {
           <div style={{ display:'inline-block', background:'#fef0ec', borderRadius:99, padding:'6px 16px', fontSize:12, fontWeight:800, color:'#e8401c', marginBottom:24, border:'1.5px solid #fca5a5' }}>
             🍴 Free Forever — No Limits
           </div>
-          <h1 style={{ fontFamily:'Caveat, cursive', fontSize:56, fontWeight:700, lineHeight:1.1, marginBottom:8, color:'#1a1008' }}>
-            Are Your Recipes<br/><span style={{ color:'#e8401c' }}>Everywhere?</span>
+        <h1 style={{ fontFamily:'Caveat, cursive', fontSize:56, fontWeight:700, lineHeight:1.2, marginBottom:16, color:'#1a1008' }}>
+            Are Your Recipes <span style={{ color:'#e8401c' }}>Everywhere?</span><br/>
+            Not Anymore.
           </h1>
           <p style={{ fontSize:16, color:'#6b4f2a', lineHeight:1.75, marginBottom:8, maxWidth:420, fontWeight:800 }}>
-            One cozy place to save your recipes and organise them as you want.
+            One cozy place for every recipe you love.
           </p>
-          <p style={{ fontSize:15, color:'#6b4f2a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800 }}>
-            Free forever to fuel your passion for always experimenting in the kitchen.
+          <p style={{ fontSize:15, color:'#a0896a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800, fontStyle:'italic' }}>
+            Free forever, just like grandma's recipes. 👵
           </p>
           <button onClick={()=>router.push('/app')}
             style={{ padding:'16px 32px', borderRadius:16, background:'#e8401c', border:'none', cursor:'pointer', fontSize:16, fontWeight:900, color:'#fff', marginBottom:48, fontFamily:'Nunito, sans-serif' }}
