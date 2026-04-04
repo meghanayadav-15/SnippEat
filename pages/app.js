@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -33,6 +33,8 @@ export default function Home() {
   const [voiceStage, setVoiceStage] = useState('');
   const [isNewCard, setIsNewCard] = useState(false);
   const [voiceLang, setVoiceLang] = useState('en-US');
+  const [photoStage, setPhotoStage] = useState('');
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -224,6 +226,56 @@ export default function Home() {
     window._setRedo = (val) => { isRedo = val; };
     window._setCancel = (val) => { isCancelled = val; };
     recognition.start();
+  }
+
+  async function handlePhotoUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setShowAddMenu(false);
+    setPhotoStage('📸 Reading your photo...');
+    try {
+      const Tesseract = (await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js')).default;
+      setPhotoStage('🔍 Extracting text from image...');
+      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+        logger: m => { if (m.status === 'recognizing text') setPhotoStage(`🔍 Reading... ${Math.round(m.progress * 100)}%`); }
+      });
+      if (!text.trim()) {
+        setPhotoStage('');
+        alert('Could not read text from this image. Try a clearer photo!');
+        return;
+      }
+      setPhotoStage('🤖 AI is structuring your recipe...');
+      const res = await fetch('/api/clip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userContent: `Extract and structure this recipe from OCR text. Clean up any OCR errors and structure it properly:\n\n${text}`, originalUrl: '' }),
+      });
+      const recipe = await res.json();
+      if (recipe.error) throw new Error(recipe.error);
+      const { data } = await supabase.from('recipes').insert([{
+        user_id: user.id,
+        title: recipe.title, cuisine: recipe.cuisine, meal_type: recipe.mealType,
+        diet: recipe.diet, difficulty: recipe.difficulty,
+        prep_time: recipe.prepTime, cook_time: recipe.cookTime, total_time: recipe.totalTime,
+        servings: recipe.servings, calories: recipe.calories, image: recipe.image,
+        tags: recipe.tags, ingredients: recipe.ingredients, steps: recipe.steps,
+        nutrition: recipe.nutrition, editor_note: recipe.editorNote,
+        source_url: '', source_type: 'text',
+        is_favourite: false, category_ids: [],
+        clipped_at: new Date().toISOString(),
+      }]).select();
+      if (data) {
+        const nr = norm(data[0]);
+        setIsNewCard(true);
+        setRecipes(p => [data[0], ...p]);
+        setSelected(nr);
+        startEdit(nr);
+      }
+    } catch(e) {
+      alert('Could not process photo. Try a clearer image!');
+    }
+    setPhotoStage('');
+    if (photoInputRef.current) photoInputRef.current.value = '';
   }
 
   function norm(r) {
@@ -589,6 +641,11 @@ export default function Home() {
     <div style={{ fontFamily:'Nunito, sans-serif', background:'#fffbf5', minHeight:'100vh', position:'relative', overflow:'hidden' }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');`}</style>
 
+      {/* hidden photo input */}
+      <input ref={photoInputRef} type="file" accept="image/*" capture="environment"
+        onChange={handlePhotoUpload}
+        style={{ display:'none' }}/>
+
       {[{s:'🍕',top:'12%',right:'1%',rot:'10deg'},{s:'🧁',top:'50%',right:'0%',rot:'-8deg'},{s:'🥕',top:'75%',right:'1%',rot:'5deg'},{s:'🍜',top:'30%',left:'0%',rot:'-10deg'}].map((st,i)=>(
         <div key={i} style={{ position:'fixed', top:st.top, left:st.left, right:st.right, fontSize:32, opacity:0.1, transform:`rotate(${st.rot})`, userSelect:'none', pointerEvents:'none', zIndex:0 }}>{st.s}</div>
       ))}
@@ -624,6 +681,17 @@ export default function Home() {
                 🔄 Redo
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* PHOTO PROCESSING OVERLAY */}
+      {photoStage && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ background:'#fff', borderRadius:24, padding:'40px 32px', textAlign:'center', maxWidth:360, width:'90%' }}>
+            <div style={{ fontSize:48, marginBottom:16 }}>📸</div>
+            <h3 style={{ fontFamily:'Caveat, cursive', fontSize:22, fontWeight:700, marginBottom:8, color:'#1a1008' }}>Processing Photo...</h3>
+            <p style={{ fontSize:14, color:'#6b4f2a', fontWeight:700 }}>{photoStage}</p>
           </div>
         </div>
       )}
@@ -708,11 +776,11 @@ export default function Home() {
                   Start Recording
                 </button>
               </div>
-              <button onClick={()=>alert('Photo entry coming soon! 📷')}
-                style={{ padding:'16px 12px', borderRadius:14, border:'2px dashed #ede4d4', background:'#fffbf5', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif', opacity:0.7 }}>
+              <button onClick={()=>photoInputRef.current?.click()}
+                style={{ padding:'16px 12px', borderRadius:14, border:'2px solid #ede4d4', background:'#fff8ee', cursor:'pointer', textAlign:'center', fontFamily:'Nunito, sans-serif' }}>
                 <div style={{ fontSize:28, marginBottom:6 }}>📷</div>
                 <div style={{ fontWeight:800, fontSize:13, color:'#1a1008', marginBottom:2 }}>Photo</div>
-                <div style={{ fontSize:11, color:'#a0896a' }}>Coming soon</div>
+                <div style={{ fontSize:11, color:'#a0896a' }}>Snap or upload</div>
               </button>
             </div>
           </div>
