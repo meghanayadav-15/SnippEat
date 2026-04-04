@@ -229,61 +229,50 @@ export default function Home() {
   }
 
   async function handlePhotoUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setShowAddMenu(false);
-    setPhotoStage('📸 Reading your photo...');
-    try {
-      const Tesseract = (await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js')).default;
-      setPhotoStage('🔍 Extracting text from image...');
-      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
-        logger: m => { if (m.status === 'recognizing text') setPhotoStage(`🔍 Reading... ${Math.round(m.progress * 100)}%`); }
-      });
-      if (!text.trim()) {
-        setPhotoStage('');
-        alert('Could not read text from this image. Try a clearer photo!');
-        return;
-      }
-      setPhotoStage('🤖 AI is structuring your recipe...');
-      const res = await fetch('/api/clip', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userContent: `Extract and structure this recipe from OCR text. Clean up any OCR errors and structure it properly:\n\n${text}`, originalUrl: '' }),
-      });
-      const recipe = await res.json();
-      if (recipe.error) throw new Error(recipe.error);
-      const { data } = await supabase.from('recipes').insert([{
-        user_id: user.id,
-        title: recipe.title, cuisine: recipe.cuisine, meal_type: recipe.mealType,
-        diet: recipe.diet, difficulty: recipe.difficulty,
-        prep_time: recipe.prepTime, cook_time: recipe.cookTime, total_time: recipe.totalTime,
-        servings: recipe.servings, calories: recipe.calories, image: recipe.image,
-        tags: recipe.tags, ingredients: recipe.ingredients, steps: recipe.steps,
-        nutrition: recipe.nutrition, editor_note: recipe.editorNote,
-        source_url: '', source_type: 'text',
-        is_favourite: false, category_ids: [],
-        clipped_at: new Date().toISOString(),
-      }]).select();
-      if (data) {
-        const nr = norm(data[0]);
-        setIsNewCard(true);
-        setRecipes(p => [data[0], ...p]);
-        setSelected(nr);
-        startEdit(nr);
-      }
-    } catch(e) {
-      alert('Could not process photo. Try a clearer image!');
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setShowAddMenu(false);
+  setPhotoStage('📸 Reading your photo...');
+  try {
+    const reader = new FileReader();
+    const imageBase64 = await new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    setPhotoStage('🤖 AI is reading your recipe...');
+    const res = await fetch('/api/photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64, mimeType: file.type || 'image/jpeg' }),
+    });
+    const recipe = await res.json();
+    if (recipe.error) throw new Error(recipe.error);
+    const { data } = await supabase.from('recipes').insert([{
+      user_id: user.id,
+      title: recipe.title, cuisine: recipe.cuisine, meal_type: recipe.mealType,
+      diet: recipe.diet, difficulty: recipe.difficulty,
+      prep_time: recipe.prepTime, cook_time: recipe.cookTime, total_time: recipe.totalTime,
+      servings: recipe.servings, calories: recipe.calories, image: recipe.image,
+      tags: recipe.tags, ingredients: recipe.ingredients, steps: recipe.steps,
+      nutrition: recipe.nutrition, editor_note: recipe.editorNote,
+      source_url: '', source_type: 'photo',
+      is_favourite: false, category_ids: [],
+      clipped_at: new Date().toISOString(),
+    }]).select();
+    if (data) {
+      const nr = norm(data[0]);
+      setIsNewCard(true);
+      setRecipes(p => [data[0], ...p]);
+      setSelected(nr);
+      startEdit(nr);
     }
-    setPhotoStage('');
-    if (photoInputRef.current) photoInputRef.current.value = '';
+  } catch(e) {
+    alert('Could not process photo. Try a clearer image!');
   }
-
-  function norm(r) {
-    return { ...r, mealType: r.meal_type, prepTime: r.prep_time, cookTime: r.cook_time,
-      totalTime: r.total_time, editorNote: r.editor_note, sourceUrl: r.source_url,
-      sourceType: r.source_type, clippedAt: r.clipped_at,
-      isFavourite: r.is_favourite, categoryIds: r.category_ids || [] };
-  }
+  setPhotoStage('');
+  if (photoInputRef.current) photoInputRef.current.value = '';
+}
 
   async function toggleFavourite(e, recipe) {
     e.stopPropagation();
