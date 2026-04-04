@@ -273,7 +273,12 @@ export default function Home() {
   setPhotoStage('');
   if (photoInputRef.current) photoInputRef.current.value = '';
 }
-
+function norm(r) {
+    return { ...r, mealType: r.meal_type, prepTime: r.prep_time, cookTime: r.cook_time,
+      totalTime: r.total_time, editorNote: r.editor_note, sourceUrl: r.source_url,
+      sourceType: r.source_type, clippedAt: r.clipped_at,
+      isFavourite: r.is_favourite, categoryIds: r.category_ids || [] };
+  }
   async function toggleFavourite(e, recipe) {
     e.stopPropagation();
     const newVal = !recipe.is_favourite;
