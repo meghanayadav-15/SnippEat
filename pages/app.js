@@ -200,9 +200,8 @@ export default function Home() {
       }
       setVoiceStage('');
     };
+    window._activeRecognition = recognition;
     recognition.start();
-    // Auto stop after 30 seconds
-    setTimeout(() => { try { recognition.stop(); } catch(e) {} }, 30000);
   }
 
   function norm(r) {
