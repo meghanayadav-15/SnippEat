@@ -97,8 +97,8 @@ export default function Landing() {
           <p style={{ fontSize:16, color:'#6b4f2a', lineHeight:1.75, marginBottom:8, maxWidth:420, fontWeight:800 }}>
             One cozy place for every recipe you love.
           </p>
-          <p style={{ fontSize:15, color:'#6b4f2a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800, fontStyle:'italic' }}>
-            Free forever, just like grandma's recipes. 👵
+          <p style={{ fontSize:15, color:'#6b4f2a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800 }}>
+            Free forever, just like grandma's recipes. 
           </p>
           <button onClick={()=>router.push('/app')}
             style={{ padding:'16px 32px', borderRadius:16, background:'#e8401c', border:'none', cursor:'pointer', fontSize:16, fontWeight:900, color:'#fff', marginBottom:48, fontFamily:'Nunito, sans-serif' }}
