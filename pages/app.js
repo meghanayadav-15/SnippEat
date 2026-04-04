@@ -153,20 +153,35 @@ export default function Home() {
     recognition.continuous = true;
     recognition.interimResults = false;
     let transcript = '';
+    let isRedo = false;
+    let isCancelled = false;
     setListening(true);
     setVoiceStage('🎤 Listening... speak your recipe now');
+
     recognition.onresult = (e) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
         transcript += e.results[i][0].transcript + ' ';
       }
     };
+
     recognition.onerror = () => {
       setListening(false);
       setVoiceStage('');
-      alert('Could not hear you. Please try again!');
+      if (!isCancelled && !isRedo) {
+        alert('Could not hear you. Please try again!');
+      }
     };
+
     recognition.onend = async () => {
       setListening(false);
+      if (isRedo) {
+        setTimeout(() => startVoiceEntry(), 300);
+        return;
+      }
+      if (isCancelled) {
+        setVoiceStage('');
+        return;
+      }
       if (!transcript.trim()) { setVoiceStage(''); return; }
       setVoiceStage('🤖 AI is reading your recipe...');
       try {
@@ -200,7 +215,10 @@ export default function Home() {
       }
       setVoiceStage('');
     };
+
     window._activeRecognition = recognition;
+    window._setRedo = (val) => { isRedo = val; };
+    window._setCancel = (val) => { isCancelled = val; };
     recognition.start();
   }
 
@@ -567,10 +585,15 @@ export default function Home() {
             <div style={{ fontSize:64, marginBottom:16, animation:'pulse 1s infinite' }}>🎤</div>
             <style>{`@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }`}</style>
             <h3 style={{ fontFamily:'Caveat, cursive', fontSize:24, fontWeight:700, marginBottom:8, color:'#1a1008' }}>Listening...</h3>
-            <p style={{ color:'#a0896a', fontSize:14, marginBottom:24 }}>Speak your recipe clearly. I'll stop after 30 seconds.</p>
+            <p style={{ color:'#a0896a', fontSize:14, marginBottom:24 }}>Speak your recipe clearly. Press Done when finished.</p>
             <p style={{ fontSize:13, color:'#6b4f2a', fontWeight:700, marginBottom:20 }}>{voiceStage}</p>
             <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
-              <button onClick={()=>{ try{ window._activeRecognition.stop(); }catch(e){} setListening(false); setVoiceStage(''); }}
+              <button onClick={()=>{
+                window._setCancel && window._setCancel(true);
+                try{ window._activeRecognition.stop(); }catch(e){}
+                setListening(false);
+                setVoiceStage('');
+              }}
                 style={{ padding:'10px 20px', borderRadius:12, background:'#fef2f2', border:'2px solid #fca5a5', color:'#e8401c', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
                 ✕ Cancel
               </button>
@@ -579,14 +602,14 @@ export default function Home() {
                 ✓ Done
               </button>
               <button onClick={()=>{
+                window._setRedo && window._setRedo(true);
                 try{ window._activeRecognition.stop(); }catch(e){}
-                setTimeout(()=>{ startVoiceEntry(); }, 500);
               }}
                 style={{ padding:'10px 20px', borderRadius:12, background:'#eff6ff', border:'2px solid #93c5fd', color:'#2563eb', fontWeight:800, cursor:'pointer', fontFamily:'Nunito, sans-serif' }}>
                 🔄 Redo
               </button>
             </div>
-        </div>
+          </div>
         </div>
       )}
 
