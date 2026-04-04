@@ -45,66 +45,45 @@ export default function Landing() {
         @keyframes float9 { 0%,100%{transform:translateY(0px) rotate(5deg)} 50%{transform:translateY(-11px) rotate(8deg)} }
         @keyframes float10 { 0%,100%{transform:translateY(0px) rotate(-15deg)} 50%{transform:translateY(-13px) rotate(-12deg)} }
       `}</style>
-
-      {/* ANIMATED STICKERS */}
+{/* ANIMATED STICKERS */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
         {[
-          // LEFT EDGE
-          { s:'🍕', top:'5%',  left:'2%',   anim:'f1',  dur:'4.2s', size:36 },
-          { s:'🌮', top:'18%', left:'1%',   anim:'f2',  dur:'5.1s', size:32 },
-          { s:'🧁', top:'32%', left:'3%',   anim:'f3',  dur:'3.8s', size:34 },
-          { s:'🍳', top:'48%', left:'1%',   anim:'f4',  dur:'4.7s', size:30 },
-          { s:'🫕', top:'63%', left:'2%',   anim:'f5',  dur:'5.5s', size:32 },
-          { s:'🌿', top:'78%', left:'1%',   anim:'f6',  dur:'4.4s', size:28 },
-          { s:'🥐', top:'90%', left:'3%',   anim:'f7',  dur:'5.8s', size:30 },
+          // CENTER GAP (between text and demo box)
+          { s:'🍕', top:'8%',  left:'44%', anim:'f1',  dur:'4.2s', size:32 },
+          { s:'🧁', top:'22%', left:'47%', anim:'f2',  dur:'5.1s', size:28 },
+          { s:'🌮', top:'38%', left:'43%', anim:'f3',  dur:'3.8s', size:30 },
+          { s:'🥑', top:'54%', left:'46%', anim:'f4',  dur:'4.7s', size:28 },
+          { s:'🍜', top:'70%', left:'44%', anim:'f5',  dur:'5.5s', size:30 },
+          { s:'🍋', top:'85%', left:'45%', anim:'f6',  dur:'4.4s', size:26 },
 
-          // LEFT-CENTER
-          { s:'🫐', top:'8%',  left:'14%',  anim:'f8',  dur:'4.9s', size:28 },
-          { s:'🥑', top:'25%', left:'12%',  anim:'f9',  dur:'3.6s', size:30 },
-          { s:'🍜', top:'42%', left:'15%',  anim:'f10', dur:'5.3s', size:32 },
-          { s:'🥕', top:'58%', left:'13%',  anim:'f11', dur:'4.5s', size:28 },
-          { s:'🍋', top:'74%', left:'14%',  anim:'f12', dur:'5.2s', size:30 },
-          { s:'🥞', top:'88%', left:'12%',  anim:'f13', dur:'4.1s', size:28 },
+          // RIGHT OF DEMO BOX
+          { s:'🫐', top:'5%',  left:'72%', anim:'f7',  dur:'5.8s', size:28 },
+          { s:'🍣', top:'18%', left:'75%', anim:'f8',  dur:'4.9s', size:30 },
+          { s:'🥕', top:'33%', left:'73%', anim:'f9',  dur:'3.6s', size:26 },
+          { s:'🍰', top:'50%', left:'76%', anim:'f10', dur:'5.3s', size:28 },
+          { s:'🥟', top:'65%', left:'74%', anim:'f11', dur:'4.5s', size:26 },
+          { s:'🫙', top:'80%', left:'72%', anim:'f12', dur:'5.2s', size:28 },
 
-          // CENTER
-          { s:'🍰', top:'4%',  left:'28%',  anim:'f14', dur:'6.1s', size:28 },
-          { s:'🧆', top:'20%', left:'32%',  anim:'f15', dur:'4.8s', size:26 },
-          { s:'🍱', top:'38%', left:'28%',  anim:'f16', dur:'5.6s', size:30 },
-          { s:'🥘', top:'55%', left:'33%',  anim:'f1',  dur:'4.3s', size:28 },
-          { s:'🫔', top:'70%', left:'29%',  anim:'f3',  dur:'5.0s', size:30 },
-          { s:'🍇', top:'85%', left:'31%',  anim:'f5',  dur:'4.6s', size:28 },
+          // FAR RIGHT EDGE
+          { s:'🌶', top:'10%', left:'89%', anim:'f13', dur:'4.1s', size:28 },
+          { s:'🍛', top:'25%', left:'91%', anim:'f14', dur:'6.1s', size:26 },
+          { s:'🧀', top:'42%', left:'88%', anim:'f15', dur:'4.8s', size:28 },
+          { s:'🥧', top:'58%', left:'90%', anim:'f16', dur:'5.6s', size:26 },
+          { s:'🫔', top:'73%', left:'89%', anim:'f1',  dur:'4.3s', size:28 },
+          { s:'🍵', top:'88%', left:'91%', anim:'f3',  dur:'5.0s', size:26 },
 
-          // RIGHT-CENTER
-          { s:'🌶', top:'7%',  left:'55%',  anim:'f7',  dur:'5.4s', size:28 },
-          { s:'🧀', top:'22%', left:'58%',  anim:'f9',  dur:'4.2s', size:26 },
-          { s:'🍛', top:'40%', left:'55%',  anim:'f11', dur:'5.7s', size:30 },
-          { s:'🥟', top:'56%', left:'57%',  anim:'f13', dur:'4.0s', size:28 },
-          { s:'🫓', top:'72%', left:'54%',  anim:'f15', dur:'5.3s', size:26 },
-          { s:'🍵', top:'87%', left:'56%',  anim:'f2',  dur:'4.7s', size:28 },
-
-          // RIGHT EDGE
-          { s:'🍣', top:'5%',  left:'72%',  anim:'f4',  dur:'5.1s', size:30 },
-          { s:'🫙', top:'20%', left:'75%',  anim:'f6',  dur:'4.4s', size:28 },
-          { s:'🥙', top:'35%', left:'73%',  anim:'f8',  dur:'5.8s', size:30 },
-          { s:'🍢', top:'50%', left:'76%',  anim:'f10', dur:'4.2s', size:26 },
-          { s:'🥮', top:'65%', left:'72%',  anim:'f12', dur:'5.5s', size:28 },
-          { s:'🧇', top:'80%', left:'74%',  anim:'f14', dur:'4.9s', size:30 },
-          { s:'🥓', top:'92%', left:'73%',  anim:'f16', dur:'5.2s', size:26 },
-
-          // FAR RIGHT
-          { s:'🌯', top:'10%', left:'88%',  anim:'f1',  dur:'4.6s', size:28 },
-          { s:'🍲', top:'28%', left:'90%',  anim:'f3',  dur:'5.3s', size:30 },
-          { s:'🥧', top:'45%', left:'87%',  anim:'f5',  dur:'4.1s', size:26 },
-          { s:'🫖', top:'62%', left:'91%',  anim:'f7',  dur:'5.7s', size:28 },
-          { s:'🥗', top:'78%', left:'88%',  anim:'f9',  dur:'4.4s', size:30 },
-          { s:'🍡', top:'93%', left:'90%',  anim:'f11', dur:'5.0s', size:26 },
+          // BOTTOM STRIP (below content on both sides)
+          { s:'🥞', top:'93%', left:'25%', anim:'f5',  dur:'4.6s', size:26 },
+          { s:'🍡', top:'95%', left:'50%', anim:'f7',  dur:'5.3s', size:24 },
+          { s:'🥗', top:'94%', left:'65%', anim:'f9',  dur:'4.1s', size:26 },
+          { s:'🧇', top:'96%', left:'80%', anim:'f11', dur:'5.7s', size:24 },
         ].map((st, i) => (
           <div key={i} style={{
             position:'absolute',
             top:st.top,
             left:st.left,
             fontSize:st.size,
-            opacity:0.15,
+            opacity:0.18,
             animation:`${st.anim} ${st.dur} ease-in-out infinite`,
             userSelect:'none',
           }}>{st.s}</div>
