@@ -188,8 +188,7 @@ export default function Home() {
         const res = await fetch('/api/clip', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userContent: `Extract and structure this spoken recipe:\n\n${transcript}`, originalUrl: '' }),
-        });
+          body: JSON.stringify({ userContent: `Extract and structure this spoken recipe into English. The user may have spoken in any language — always output the recipe fields in English:\n\n${transcript}`, originalUrl: '' }),        });
         const recipe = await res.json();
         if (recipe.error) throw new Error(recipe.error);
         const { data } = await supabase.from('recipes').insert([{
