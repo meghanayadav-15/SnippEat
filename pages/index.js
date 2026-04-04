@@ -29,11 +29,17 @@ export default function Landing() {
   }
 
   const stickers = [
-    // LEFT SIDE — 4 stickers, tucked to edge so they don't overlap text
+    // LEFT SIDE
     { s:'🍕', top:'8%',  left:'1%',  dur:'4.2s', size:28, delay:'0s' },
     { s:'🌿', top:'30%', left:'2%',  dur:'5.1s', size:26, delay:'0.5s' },
     { s:'🧁', top:'55%', left:'1%',  dur:'3.8s', size:28, delay:'1s' },
     { s:'🥐', top:'78%', left:'2%',  dur:'4.7s', size:26, delay:'1.5s' },
+
+    // RIGHT SIDE
+    { s:'🍓', top:'8%',  left:'96%', dur:'4.2s', size:28, delay:'0.3s' },
+    { s:'🥦', top:'30%', left:'95%', dur:'5.1s', size:26, delay:'0.8s' },
+    { s:'🍄', top:'55%', left:'96%', dur:'3.8s', size:28, delay:'1.2s' },
+    { s:'🌽', top:'78%', left:'95%', dur:'4.7s', size:26, delay:'0.6s' },
 
     // CENTER GAP
     { s:'🍕', top:'8%',  left:'44%', dur:'4.2s', size:32, delay:'0.2s' },
