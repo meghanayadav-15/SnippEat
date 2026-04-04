@@ -28,33 +28,46 @@ export default function Landing() {
     setLoading(false);
   }
 
-  const stickers = ['🍕','🌮','🧁','🥑','🍜','🫙','🍳','🥕','🍝','🧄'];
-
   return (
     <div style={{ minHeight:'100vh', background:'#fffbf5', fontFamily:'Nunito, sans-serif', position:'relative', overflow:'hidden' }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;800;900&display=swap');
-        .sticker { position:fixed; fontSize:32px; opacity:0.18; pointerEvents:none; userSelect:none; zIndex:0; }
-        .feat-icon:hover { transform:scale(1.1); }
-        .cta-btn:hover { transform:translateY(-2px); boxShadow:'0 8px 24px #e8401c44'; }
+
+        @keyframes float1 { 0%,100%{transform:translateY(0px) rotate(-12deg)} 50%{transform:translateY(-14px) rotate(-10deg)} }
+        @keyframes float2 { 0%,100%{transform:translateY(0px) rotate(10deg)} 50%{transform:translateY(-18px) rotate(13deg)} }
+        @keyframes float3 { 0%,100%{transform:translateY(0px) rotate(-7deg)} 50%{transform:translateY(-10px) rotate(-5deg)} }
+        @keyframes float4 { 0%,100%{transform:translateY(0px) rotate(14deg)} 50%{transform:translateY(-16px) rotate(11deg)} }
+        @keyframes float5 { 0%,100%{transform:translateY(0px) rotate(-5deg)} 50%{transform:translateY(-12px) rotate(-8deg)} }
+        @keyframes float6 { 0%,100%{transform:translateY(0px) rotate(8deg)} 50%{transform:translateY(-20px) rotate(6deg)} }
+        @keyframes float7 { 0%,100%{transform:translateY(0px) rotate(12deg)} 50%{transform:translateY(-8px) rotate(15deg)} }
+        @keyframes float8 { 0%,100%{transform:translateY(0px) rotate(-9deg)} 50%{transform:translateY(-15px) rotate(-12deg)} }
+        @keyframes float9 { 0%,100%{transform:translateY(0px) rotate(5deg)} 50%{transform:translateY(-11px) rotate(8deg)} }
+        @keyframes float10 { 0%,100%{transform:translateY(0px) rotate(-15deg)} 50%{transform:translateY(-13px) rotate(-12deg)} }
       `}</style>
 
-      {/* SCATTERED STICKERS */}
+      {/* ANIMATED STICKERS */}
       <div style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:0, overflow:'hidden' }}>
         {[
-          {s:'🍕', top:'8%', left:'3%', rot:'-12deg', size:40},
-          {s:'🌮', top:'15%', right:'4%', rot:'10deg', size:34},
-          {s:'🧁', top:'42%', left:'1%', rot:'-7deg', size:36},
-          {s:'🥑', top:'68%', right:'2%', rot:'14deg', size:32},
-          {s:'🍜', top:'78%', left:'4%', rot:'-5deg', size:38},
-          {s:'🫙', top:'30%', right:'2%', rot:'8deg', size:30},
-          {s:'🍳', top:'55%', left:'2%', rot:'12deg', size:34},
-          {s:'🧄', top:'90%', right:'5%', rot:'-9deg', size:30},
-          {s:'🍝', top:'5%', right:'10%', rot:'5deg', size:28},
-          {s:'🥕', top:'85%', left:'8%', rot:'-15deg', size:32},
-        ].map((st,i)=>(
-          <div key={i} style={{ position:'absolute', top:st.top, left:st.left, right:st.right, fontSize:st.size, opacity:0.15, transform:`rotate(${st.rot})`, userSelect:'none' }}>{st.s}</div>
+          { s:'🍕', top:'6%',  left:'2%',   anim:'float1',  dur:'4.2s', size:40, opacity:0.18 },
+          { s:'🌮', top:'12%', right:'3%',   anim:'float2',  dur:'5.1s', size:34, opacity:0.16 },
+          { s:'🧁', top:'38%', left:'1%',    anim:'float3',  dur:'3.8s', size:36, opacity:0.17 },
+          { s:'🥑', top:'65%', right:'2%',   anim:'float4',  dur:'4.7s', size:32, opacity:0.15 },
+          { s:'🍜', top:'80%', left:'3%',    anim:'float5',  dur:'5.5s', size:38, opacity:0.16 },
+          { s:'🫙', top:'28%', right:'1.5%', anim:'float6',  dur:'6.1s', size:30, opacity:0.14 },
+          { s:'🍳', top:'52%', left:'1.5%',  anim:'float7',  dur:'4.4s', size:34, opacity:0.15 },
+          { s:'🧄', top:'88%', right:'4%',   anim:'float8',  dur:'5.8s', size:30, opacity:0.14 },
+          { s:'🍝', top:'4%',  right:'9%',   anim:'float9',  dur:'4.9s', size:28, opacity:0.13 },
+          { s:'🥕', top:'72%', left:'7%',    anim:'float10', dur:'3.6s', size:32, opacity:0.15 },
+        ].map((st, i) => (
+          <div key={i} style={{
+            position:'absolute',
+            top:st.top, left:st.left, right:st.right,
+            fontSize:st.size,
+            opacity:st.opacity,
+            animation:`${st.anim} ${st.dur} ease-in-out infinite`,
+            userSelect:'none',
+          }}>{st.s}</div>
         ))}
       </div>
 
@@ -80,14 +93,14 @@ export default function Landing() {
           <h1 style={{ fontFamily:'Caveat, cursive', fontSize:56, fontWeight:700, lineHeight:1.1, marginBottom:8, color:'#1a1008' }}>
             Are Your Recipes<br/><span style={{ color:'#e8401c' }}>Everywhere?</span>
           </h1>
-          <p style={{ fontSize:16, color:'#6b4f2a', lineHeight:1.75, marginBottom:8, maxWidth:420, fontWeight:700 }}>
+          <p style={{ fontSize:16, color:'#6b4f2a', lineHeight:1.75, marginBottom:8, maxWidth:420, fontWeight:800 }}>
             One cozy place to save your recipes and organise them as you want.
           </p>
-          <p style={{ fontSize:15, color:'#a0896a', lineHeight:1.75, marginBottom:36, maxWidth:420 }}>
+          <p style={{ fontSize:15, color:'#6b4f2a', lineHeight:1.75, marginBottom:36, maxWidth:420, fontWeight:800 }}>
             Free forever to fuel your passion for always experimenting in the kitchen.
           </p>
           <button onClick={()=>router.push('/app')}
-            style={{ padding:'16px 32px', borderRadius:16, background:'#e8401c', border:'none', cursor:'pointer', fontSize:16, fontWeight:900, color:'#fff', marginBottom:48, fontFamily:'Nunito, sans-serif', transition:'all 0.2s' }}
+            style={{ padding:'16px 32px', borderRadius:16, background:'#e8401c', border:'none', cursor:'pointer', fontSize:16, fontWeight:900, color:'#fff', marginBottom:48, fontFamily:'Nunito, sans-serif' }}
             onMouseEnter={e=>e.currentTarget.style.transform='translateY(-2px)'}
             onMouseLeave={e=>e.currentTarget.style.transform='none'}>
             Treasure Every Recipe, Forever ❤️
