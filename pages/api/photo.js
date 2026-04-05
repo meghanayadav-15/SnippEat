@@ -1,10 +1,12 @@
+export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { imageBase64, mimeType = 'image/jpeg' } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'No image provided' });
 
-  const systemPrompt = `You are a recipe extraction expert. The user has sent you a photo of a recipe — handwritten, printed, or from a cookbook. Extract everything you can see and return ONLY valid JSON, no markdown, no extra text:
+  const systemPrompt = `You are a recipe extraction expert. The user has sent you a photo of a recipe — handwritten, printed, or from a cookbook. Extract everything visible and return ONLY valid JSON, no markdown, no extra text:
 {
   "title": "Recipe title",
   "cuisine": "e.g. Italian or Unknown",
@@ -25,7 +27,7 @@ export default async function handler(req, res) {
   "sourceUrl": "",
   "sourceType": "photo"
 }
-IMPORTANT: Always return valid JSON. Never return an error message. If you can't read something clearly, make a reasonable guess.`;
+Always return valid JSON. Never return an error message. If something is unclear, make a reasonable guess.`;
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -34,7 +36,7 @@ IMPORTANT: Always return valid JSON. Never return an error message. If you can't
       'Authorization': `Bearer ${process.env.GROQ_KEY}`,
     },
     body: JSON.stringify({
-      model: 'llama-4-scout-17b-16e-instruct',
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       max_tokens: 2000,
       temperature: 0.2,
       messages: [
@@ -44,14 +46,9 @@ IMPORTANT: Always return valid JSON. Never return an error message. If you can't
           content: [
             {
               type: 'image_url',
-              image_url: {
-                url: `data:${mimeType};base64,${imageBase64}`,
-              },
+              image_url: { url: `data:${mimeType};base64,${imageBase64}` },
             },
-            {
-              type: 'text',
-              text: 'Please extract the recipe from this photo.',
-            },
+            { type: 'text', text: 'Please extract the recipe from this photo.' },
           ],
         },
       ],
